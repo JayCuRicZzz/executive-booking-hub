@@ -114,18 +114,6 @@ export default function Dashboard() {
             <p className="text-slate-400 text-sm ml-1">Daily Pickup Target Overview & Reporting</p>
           </div>
 
-          <button
-            onClick={handleExport}
-            disabled={isExporting}
-            className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-lg border ${
-              isExporting 
-                ? "bg-slate-800 border-slate-700 text-slate-400 cursor-not-allowed" 
-                : "bg-indigo-600 hover:bg-indigo-500 border-indigo-500 hover:shadow-indigo-500/25 text-white hover:-translate-y-0.5 active:translate-y-0"
-            }`}
-          >
-            <Download className={`w-4 h-4 ${isExporting ? "animate-bounce" : ""}`} />
-            {isExporting ? "Exporting..." : "Export Reservations (.xlsx)"}
-          </button>
         </header>
 
         {/* Top Metric Cards */}

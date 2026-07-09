@@ -25,6 +25,7 @@ export default function ReservationsPage() {
   const [data, setData] = useState<ReservationRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [branchFilter, setBranchFilter] = useState("ALL");
 
   useEffect(() => {
     fetch("/api/data")
@@ -39,11 +40,17 @@ export default function ReservationsPage() {
       });
   }, []);
 
-  const filteredData = data.filter(item => 
-    item.bookerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.reservationNumber.includes(searchQuery) ||
-    item.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredData = data.filter(item => {
+    const matchesSearch = item.bookerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.reservationNumber.includes(searchQuery) ||
+      item.propertyName.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesBranch = branchFilter === "ALL" || item.propertyName === branchFilter;
+    
+    return matchesSearch && matchesBranch;
+  });
+
+  const uniqueBranches = Array.from(new Set(data.map(item => item.propertyName))).sort();
 
   if (isLoading) {
     return (
@@ -71,15 +78,28 @@ export default function ReservationsPage() {
             <p className="text-slate-400 text-sm ml-1">ฐานข้อมูลการจองทั้งหมดที่ถูกอัปโหลดเข้าระบบ</p>
           </div>
 
-          <div className="relative w-full md:w-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="ค้นหาชื่อผู้จอง, รหัส, สาขา..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full md:w-80 bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-            />
+          <div className="relative w-full md:w-auto flex flex-col sm:flex-row gap-3">
+            <select
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+              className="w-full sm:w-48 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer"
+            >
+              <option value="ALL" className="bg-slate-900">ทุกสาขา (All Branches)</option>
+              {uniqueBranches.map(branch => (
+                <option key={branch} value={branch} className="bg-slate-900">{branch}</option>
+              ))}
+            </select>
+            
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="ค้นหาชื่อผู้จอง, รหัส..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full md:w-64 bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              />
+            </div>
           </div>
         </header>
 
