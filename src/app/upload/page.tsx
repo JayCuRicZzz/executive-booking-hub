@@ -13,11 +13,25 @@ export default function UploadPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [duplicateCount, setDuplicateCount] = useState(0);
   const [newCount, setNewCount] = useState(0);
+  const [logs, setLogs] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     // Auth is handled by Next.js Middleware. Safe to access.
+    fetchUploadLogs();
   }, [router]);
+
+  const fetchUploadLogs = async () => {
+    try {
+      const res = await fetch("/api/uploadLogs");
+      if (res.ok) {
+        const data = await res.json();
+        setLogs(data.logs || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch upload logs", err);
+    }
+  };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -70,14 +84,9 @@ export default function UploadPage() {
     setStatus("reading");
 
     try {
-      // 1. Fetch existing mock data to check duplicates
-      const res = await fetch("/api/data");
-      const { reservations } = await res.json();
-      const existingResNumbers = new Set(reservations.map((r: any) => r.reservationNumber));
-
-      // 2. Read the uploaded file
+      // 1. Read the uploaded file
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const data = new Uint8Array(e.target?.result as ArrayBuffer);
           const workbook = XLSX.read(data, { type: 'array' });
@@ -85,37 +94,39 @@ export default function UploadPage() {
           const worksheet = workbook.Sheets[firstSheetName];
           const json = XLSX.utils.sheet_to_json(worksheet) as any[];
 
-          // 3. Check for duplicates based on Reservation number
-          let dupes = 0;
-          let newRecords = 0;
-
-          json.forEach((row) => {
-            const resNo = String(row["Reservation number"] || row["reservationNumber"]);
-            if (resNo && existingResNumbers.has(resNo)) {
-              dupes++;
-            } else if (resNo) {
-              newRecords++;
-            }
+          setStatus("uploading");
+          
+          // Send to API
+          const username = localStorage.getItem("username") || "Admin";
+          const uploadRes = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fileName: file.name,
+              records: json,
+              uploadedBy: username
+            })
           });
 
-          setDuplicateCount(dupes);
-          setNewCount(newRecords);
+          const uploadData = await uploadRes.json();
 
-          if (newRecords === 0 && dupes > 0) {
+          if (!uploadRes.ok) throw new Error(uploadData.error || "Upload failed");
+
+          setDuplicateCount(uploadData.duplicates);
+          setNewCount(uploadData.newRecords);
+
+          if (uploadData.newRecords === 0 && uploadData.duplicates > 0) {
             setStatus("duplicate");
-            return;
-          }
-
-          // 4. Simulate Uploading
-          setStatus("uploading");
-          setTimeout(() => {
+          } else {
             setStatus("success");
             setFile(null);
-          }, 1500);
+          }
+          
+          fetchUploadLogs();
 
         } catch (err) {
           console.error(err);
-          setErrorMessage("Failed to read the Excel file structure.");
+          setErrorMessage("Failed to process and upload the Excel file.");
           setStatus("error");
         }
       };
@@ -123,7 +134,7 @@ export default function UploadPage() {
       reader.readAsArrayBuffer(file);
     } catch (err) {
       console.error(err);
-      setErrorMessage("Network error checking existing data.");
+      setErrorMessage("Network error processing upload.");
       setStatus("error");
     }
   };
@@ -250,6 +261,54 @@ export default function UploadPage() {
             </div>
           )}
         </div>
+
+        {/* Upload History Section */}
+        <div className="mt-16 bg-white/[0.02] border border-white/10 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl">
+          <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.01]">
+            <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+              ประวัติการอัปโหลด (Upload History)
+            </h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-white/[0.02] text-slate-400 text-sm border-b border-white/10">
+                  <th className="px-6 py-4 font-medium whitespace-nowrap">วัน/เวลา (Date)</th>
+                  <th className="px-6 py-4 font-medium whitespace-nowrap">ชื่อไฟล์ (File Name)</th>
+                  <th className="px-6 py-4 font-medium whitespace-nowrap">แอดมิน (Uploaded By)</th>
+                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right">ข้อมูลใหม่ (New)</th>
+                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right">ข้อมูลซ้ำ (Duplicates)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10">
+                {logs.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                      ยังไม่มีประวัติการอัปโหลดข้อมูล
+                    </td>
+                  </tr>
+                ) : (
+                  logs.map((log) => (
+                    <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="px-6 py-4 text-slate-300">
+                        {new Date(log.uploadDate).toLocaleString('th-TH')}
+                      </td>
+                      <td className="px-6 py-4 text-white font-medium">{log.fileName}</td>
+                      <td className="px-6 py-4 text-slate-400">
+                        <span className="inline-flex items-center px-2 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs">
+                          {log.uploadedBy}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right text-green-400 font-medium">+{log.newRecords}</td>
+                      <td className="px-6 py-4 text-right text-amber-400 font-medium">{log.duplicates}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   );
