@@ -16,11 +16,7 @@ export default function UploadPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Auth Check
-    const isAuth = localStorage.getItem("isAuthenticated");
-    if (isAuth !== "true") {
-      router.push("/login");
-    }
+    // Auth is handled by Next.js Middleware. Safe to access.
   }, [router]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {

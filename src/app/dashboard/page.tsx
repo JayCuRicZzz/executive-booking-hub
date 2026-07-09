@@ -37,12 +37,7 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    // Auth Check
-    const isAuth = localStorage.getItem("isAuthenticated");
-    if (isAuth !== "true") {
-      router.push("/login");
-      return;
-    }
+    // Auth is handled by Next.js Middleware. Safe to fetch.
 
     fetch("/api/data")
       .then(res => res.json())
