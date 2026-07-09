@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, UploadCloud, LogOut, Building2, Users, Database } from "lucide-react";
+import { LayoutDashboard, UploadCloud, LogOut, Building2, Users, Database, Target } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export function Navigation() {
@@ -30,6 +30,7 @@ export function Navigation() {
 
   const baseNavItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Targets", href: "/targets", icon: Target },
     { name: "All Data", href: "/reservations", icon: Database },
   ];
 
