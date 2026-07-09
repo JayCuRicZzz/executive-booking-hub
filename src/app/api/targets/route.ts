@@ -2,17 +2,21 @@ import { NextResponse } from "next/server";
 import { getReservations, getTargets } from "@/lib/dataDb";
 import { BRANCH_TARGETS as DEFAULT_BRANCH_TARGETS, getDaysInMonth } from "@/lib/targetsData";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const dateParam = searchParams.get("date");
+
     const [reservations, dbTargets] = await Promise.all([
       getReservations(),
       getTargets()
     ]);
     
     // Calculate current time periods
-    const now = new Date();
-    // Use Thailand time (UTC+7) for consistency with local business operations
-    const thailandTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+    const now = dateParam ? new Date(dateParam) : new Date();
+    // Use Thailand time (UTC+7) for consistency with local business operations if using current time
+    // If dateParam is provided (YYYY-MM-DD), the date is already exact, but we can still apply the +7 offset to safely parse it as local.
+    const thailandTime = dateParam ? new Date(dateParam) : new Date(now.getTime() + (7 * 60 * 60 * 1000));
     
     const year = thailandTime.getUTCFullYear();
     const month = thailandTime.getUTCMonth() + 1; // 1-12
@@ -73,8 +77,11 @@ export async function GET() {
       let yearActual = 0;
       
       branchReservations.forEach(r => {
-        const rDate = new Date(r.uploadedAt);
-        const rThai = new Date(rDate.getTime() + (7 * 60 * 60 * 1000));
+        // Use bookedOn if available, fallback to arrival, then uploadedAt
+        const dateStr = r.bookedOn || r.arrival || r.uploadedAt;
+        const rDate = new Date(dateStr);
+        // We assume bookedOn (YYYY-MM-DD) parses cleanly in UTC, but if it has time we can adjust
+        const rThai = new Date(rDate.getTime()); 
         
         const rYear = rThai.getUTCFullYear();
         const rMonth = rThai.getUTCMonth() + 1;

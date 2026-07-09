@@ -17,9 +17,14 @@ export default function TargetsPage() {
   const [rankings, setRankings] = useState<RankingData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
+  // Default to today's date in YYYY-MM-DD
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0]
+  );
 
   useEffect(() => {
-    fetch("/api/targets")
+    setIsLoading(true);
+    fetch(`/api/targets?date=${selectedDate}`)
       .then(res => res.json())
       .then(data => {
         setRankings(data.rankings || []);
@@ -29,7 +34,7 @@ export default function TargetsPage() {
         console.error(err);
         setIsLoading(false);
       });
-  }, []);
+  }, [selectedDate]);
 
   // Sort by gap (lowest to highest, so negative gaps (missing targets) are at the top, or by percent)
   // Let's sort by percent achieved (highest to lowest) to rank them, or maybe the ones missing most are at top?
@@ -69,20 +74,30 @@ export default function TargetsPage() {
             </p>
           </div>
 
-          <div className="flex bg-white/5 p-1 rounded-full border border-white/10 w-full md:w-auto overflow-x-auto no-scrollbar">
-            {(["today", "week", "month", "year"] as ViewMode[]).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`flex-none px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                  viewMode === mode 
-                    ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30" 
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {mode === "today" ? "วันนี้" : mode === "week" ? "สัปดาห์นี้" : mode === "month" ? "เดือนนี้" : "ปีนี้"}
-              </button>
-            ))}
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+            {/* Date Picker Filter */}
+            <input 
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-full md:w-auto"
+            />
+            
+            <div className="flex bg-white/5 p-1 rounded-full border border-white/10 w-full md:w-auto overflow-x-auto no-scrollbar">
+              {(["today", "week", "month", "year"] as ViewMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={`flex-none px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                    viewMode === mode 
+                      ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30" 
+                      : "text-slate-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {mode === "today" ? "ตามวัน" : mode === "week" ? "ตามสัปดาห์" : mode === "month" ? "ตามเดือน" : "ตามปี"}
+                </button>
+              ))}
+            </div>
           </div>
         </header>
 
