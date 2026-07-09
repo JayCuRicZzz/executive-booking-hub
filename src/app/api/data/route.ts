@@ -25,7 +25,11 @@ export async function GET() {
         branch.propertyName.toLowerCase().includes(r.propertyName.toLowerCase())
       );
 
+      const totalBookings = branchReservations.length;
       const actualSales = branchReservations.reduce((sum, r) => sum + (r.totalPayment || 0), 0);
+      const totalCommission = branchReservations.reduce((sum, r) => sum + (r.commission || 0), 0);
+      const netRevenue = actualSales - totalCommission;
+
       const gap = actualSales - dailyTarget;
       let status = "";
       if (gap >= 0) {
@@ -37,7 +41,10 @@ export async function GET() {
       return {
         id: index + 1,
         hotelName: branch.propertyName,
+        totalBookings,
         actualSales,
+        totalCommission,
+        netRevenue,
         dailyTarget,
         gap,
         status

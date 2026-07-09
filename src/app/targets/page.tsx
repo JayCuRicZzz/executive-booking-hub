@@ -8,9 +8,10 @@ type RankingData = {
   today: { target: number; actual: number; gap: number; percent: number };
   week: { target: number; actual: number; gap: number; percent: number };
   month: { target: number; actual: number; gap: number; percent: number };
+  year: { target: number; actual: number; gap: number; percent: number };
 };
 
-type ViewMode = "today" | "week" | "month";
+type ViewMode = "today" | "week" | "month" | "year";
 
 export default function TargetsPage() {
   const [rankings, setRankings] = useState<RankingData[]>([]);
@@ -68,18 +69,18 @@ export default function TargetsPage() {
             </p>
           </div>
 
-          <div className="flex bg-white/5 p-1 rounded-full border border-white/10 w-full md:w-auto">
-            {(["today", "week", "month"] as ViewMode[]).map((mode) => (
+          <div className="flex bg-white/5 p-1 rounded-full border border-white/10 w-full md:w-auto overflow-x-auto no-scrollbar">
+            {(["today", "week", "month", "year"] as ViewMode[]).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                className={`flex-1 md:flex-none px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`flex-none px-6 py-2 rounded-full text-sm font-medium transition-all ${
                   viewMode === mode 
                     ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30" 
                     : "text-slate-400 hover:text-white hover:bg-white/5"
                 }`}
               >
-                {mode === "today" ? "วันนี้" : mode === "week" ? "สัปดาห์นี้" : "เดือนนี้"}
+                {mode === "today" ? "วันนี้" : mode === "week" ? "สัปดาห์นี้" : mode === "month" ? "เดือนนี้" : "ปีนี้"}
               </button>
             ))}
           </div>

@@ -8,7 +8,10 @@ import * as XLSX from "xlsx";
 type SummaryData = {
   id: number;
   hotelName: string;
+  totalBookings: number;
   actualSales: number;
+  totalCommission: number;
+  netRevenue: number;
   dailyTarget: number;
   gap: number;
   status: string;
@@ -213,6 +216,47 @@ export default function Dashboard() {
                         {row.status.includes("High Priority") ? <AlertCircle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
                         {row.status}
                       </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Net Revenue Analysis Table */}
+        <section className="bg-white/[0.02] border border-white/10 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl mt-12">
+          <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.01]">
+            <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+              Net Revenue Analysis (วิเคราะห์รายได้สุทธิ)
+            </h3>
+            <span className="text-xs font-medium px-3 py-1 bg-white/5 rounded-full text-slate-300 border border-white/10">
+              รวมทุกรายการ
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-white/[0.02] text-slate-400 text-sm border-b border-white/10">
+                  <th className="px-6 py-4 font-medium whitespace-nowrap">สาขา (Hotel Name)</th>
+                  <th className="px-6 py-4 font-medium whitespace-nowrap text-center">จำนวน (Bookings)</th>
+                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right">ยอดขายรวม (Gross)</th>
+                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right">หักคอมมิชชั่น (Commission)</th>
+                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right text-emerald-400">รายได้สุทธิ (Net Revenue)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10">
+                {summaryData.map((row) => (
+                  <tr 
+                    key={row.id + '-net'} 
+                    className="hover:bg-white/[0.02] transition-colors group"
+                  >
+                    <td className="px-6 py-4 font-medium text-white">{row.hotelName}</td>
+                    <td className="px-6 py-4 text-center text-slate-300">{row.totalBookings}</td>
+                    <td className="px-6 py-4 text-right tabular-nums text-slate-300">฿{row.actualSales.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-right tabular-nums text-rose-400">-฿{row.totalCommission.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-right tabular-nums font-bold text-emerald-400">
+                      ฿{row.netRevenue.toLocaleString()}
                     </td>
                   </tr>
                 ))}

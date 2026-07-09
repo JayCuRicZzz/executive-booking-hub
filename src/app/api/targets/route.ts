@@ -31,6 +31,9 @@ export async function GET() {
       const dailyTarget = monthTarget / daysInMonth;
       const weeklyTarget = dailyTarget * 7;
       
+      // Calculate Yearly Target
+      const yearlyTarget = Object.values(branchConfig.targets).reduce((sum, val) => sum + val, 0);
+      
       // Filter reservations for this branch
       const branchReservations = reservations.filter(r => 
         r.propertyName.toLowerCase().includes(branchConfig.propertyName.toLowerCase()) || 
@@ -40,24 +43,24 @@ export async function GET() {
       let todayActual = 0;
       let weekActual = 0;
       let monthActual = 0;
+      let yearActual = 0;
       
       branchReservations.forEach(r => {
-        // We'll use uploadedAt as a proxy for "processed sales date" to be safe,
-        // or bookedOn if you prefer. Let's use uploadedAt since the system guarantees it's an ISO string.
         const rDate = new Date(r.uploadedAt);
-        // Adjust to Thai time for comparison
         const rThai = new Date(rDate.getTime() + (7 * 60 * 60 * 1000));
         
         const rYear = rThai.getUTCFullYear();
         const rMonth = rThai.getUTCMonth() + 1;
         const rDay = rThai.getUTCDate();
         
-        const isSameMonth = rYear === year && rMonth === month;
+        const isSameYear = rYear === year;
+        const isSameMonth = isSameYear && rMonth === month;
         const isSameDay = isSameMonth && rDay === date;
         const isSameWeek = rThai >= startOfWeekDate && rThai <= thailandTime;
         
         const amount = r.totalPayment || 0;
         
+        if (isSameYear) yearActual += amount;
         if (isSameMonth) monthActual += amount;
         if (isSameWeek) weekActual += amount;
         if (isSameDay) todayActual += amount;
@@ -82,6 +85,12 @@ export async function GET() {
           actual: monthActual,
           gap: monthActual - monthTarget,
           percent: monthTarget > 0 ? (monthActual / monthTarget) * 100 : 0
+        },
+        year: {
+          target: yearlyTarget,
+          actual: yearActual,
+          gap: yearActual - yearlyTarget,
+          percent: yearlyTarget > 0 ? (yearActual / yearlyTarget) * 100 : 0
         }
       };
     });
