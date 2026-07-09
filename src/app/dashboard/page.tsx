@@ -90,6 +90,8 @@ export default function Dashboard() {
   };
 
   const totalSales = summaryData.reduce((acc, curr) => acc + curr.actualSales, 0);
+  const totalCommission = summaryData.reduce((acc, curr) => acc + curr.totalCommission, 0);
+  const totalNetRevenue = summaryData.reduce((acc, curr) => acc + curr.netRevenue, 0);
   const totalTarget = summaryData.reduce((acc, curr) => acc + curr.dailyTarget, 0);
 
   if (isLoading) {
@@ -123,41 +125,53 @@ export default function Dashboard() {
         </header>
 
         {/* Top Metric Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white/[0.02] border border-white/10 p-6 rounded-3xl relative overflow-hidden group">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          <div className="bg-white/[0.02] border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <TrendingUp className="w-24 h-24 text-indigo-400" />
+              <TrendingUp className="w-20 h-20 text-indigo-400" />
             </div>
-            <p className="text-slate-400 text-sm font-medium mb-1">ยอดขายทำได้จริง (Actual Sales)</p>
-            <h2 className="text-4xl font-bold text-white mb-2">฿{formatMoney(totalSales)}</h2>
-            <div className="flex items-center gap-2 text-sm text-green-400">
-              <TrendingUp className="w-4 h-4" />
-              <span>Current day performance</span>
+            <p className="text-slate-400 text-sm font-medium mb-1">ยอดขายทำได้จริง (Gross)</p>
+            <h2 className="text-3xl font-bold text-white mb-2">฿{formatMoney(totalSales)}</h2>
+            <div className="flex items-center gap-1.5 text-xs text-indigo-400">
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>Current gross sales</span>
+            </div>
+          </div>
+
+          <div className="bg-white/[0.02] border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <AlertCircle className="w-20 h-20 text-rose-400" />
+            </div>
+            <p className="text-slate-400 text-sm font-medium mb-1">หักคอมมิชชั่น (Commission)</p>
+            <h2 className="text-3xl font-bold text-rose-400 mb-2">-฿{formatMoney(totalCommission)}</h2>
+            <div className="flex items-center gap-1.5 text-xs text-rose-400">
+              <TrendingDown className="w-3.5 h-3.5" />
+              <span>Deducted from gross</span>
             </div>
           </div>
           
-          <div className="bg-white/[0.02] border border-white/10 p-6 rounded-3xl relative overflow-hidden group">
+          <div className="bg-white/[0.02] border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <Target className="w-24 h-24 text-blue-400" />
+              <Target className="w-20 h-20 text-blue-400" />
             </div>
-            <p className="text-slate-400 text-sm font-medium mb-1">เป้าหมายรวมวันนี้ (Daily Target)</p>
-            <h2 className="text-4xl font-bold text-white mb-2">฿{formatMoney(totalTarget)}</h2>
-            <div className="flex items-center gap-2 text-sm text-blue-400">
-              <CheckCircle className="w-4 h-4" />
-              <span>Combined goal for 180 Days tracking</span>
+            <p className="text-slate-400 text-sm font-medium mb-1">เป้าหมายรวม (Daily Target)</p>
+            <h2 className="text-3xl font-bold text-white mb-2">฿{formatMoney(totalTarget)}</h2>
+            <div className="flex items-center gap-1.5 text-xs text-blue-400">
+              <CheckCircle className="w-3.5 h-3.5" />
+              <span>Combined goal for tracking</span>
             </div>
           </div>
-          <div className="bg-white/[0.02] border border-white/10 backdrop-blur-xl p-6 rounded-3xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-              <TrendingDown className="w-24 h-24 text-red-400" />
+          <div className="bg-white/[0.02] border border-white/10 backdrop-blur-xl p-5 rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <CheckCircle className="w-20 h-20 text-emerald-400" />
             </div>
-            <p className="text-slate-400 font-medium mb-1">Total Shortfall (ยอดที่ขาดทั้งหมด)</p>
-            <h2 className={`text-4xl font-bold mb-2 ${totalTarget - totalSales > 0 ? "text-red-400" : "text-green-400"}`}>
-              ฿{formatMoney(Math.max(0, totalTarget - totalSales))}
+            <p className="text-slate-400 text-sm font-medium mb-1">รายได้สุทธิ (Net Revenue)</p>
+            <h2 className="text-3xl font-bold text-emerald-400 mb-2">
+              ฿{formatMoney(totalNetRevenue)}
             </h2>
-            <div className={`flex items-center gap-2 text-sm ${totalTarget - totalSales > 0 ? "text-red-400" : "text-green-400"}`}>
-              {totalTarget - totalSales > 0 ? <AlertCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
-              <span>{totalTarget - totalSales > 0 ? "Remaining to reach goal" : "Goal exceeded!"}</span>
+            <div className="flex items-center gap-1.5 text-xs text-emerald-400">
+              <CheckCircle className="w-3.5 h-3.5" />
+              <span>Gross minus commission</span>
             </div>
           </div>
         </div>
