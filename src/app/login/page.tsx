@@ -72,7 +72,7 @@ export default function Login() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                placeholder="Enter admin"
+                placeholder="Username"
                 required
               />
             </div>
@@ -84,7 +84,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                placeholder="Enter 1234"
+                placeholder="Password"
                 required
               />
             </div>
@@ -110,8 +110,13 @@ export default function Login() {
           </button>
         </form>
         
-        <div className="mt-8 text-center text-xs text-slate-500">
-          <p>Mock Credentials: <span className="font-mono text-indigo-400">admin / 1234</span></p>
+        <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-1">
+          <p className="text-sm font-medium text-slate-300 flex items-center justify-center gap-2">
+            👨‍💻 พัฒนาโดย: นายเดชาธร เดชอนุรักษ์
+          </p>
+          <p className="text-xs text-slate-400">
+            ✨ JayCuRicZzz | 📱 0944926155
+          </p>
         </div>
       </div>
     </div>
