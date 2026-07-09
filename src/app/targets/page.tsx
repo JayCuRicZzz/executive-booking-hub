@@ -45,7 +45,7 @@ export default function TargetsPage() {
   }
 
   const formatMoney = (val: number) => 
-    new Intl.NumberFormat("th-TH", { maximumFractionDigits: 0 }).format(val);
+    new Intl.NumberFormat("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-indigo-500/30 pb-20">

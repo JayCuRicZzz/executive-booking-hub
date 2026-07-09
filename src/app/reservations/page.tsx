@@ -135,7 +135,7 @@ export default function ReservationsPage() {
                       <td className="px-4 py-3 text-slate-300">{row.propertyName}</td>
                       <td className="px-4 py-3 text-slate-400">{row.arrival}</td>
                       <td className="px-4 py-3 text-right tabular-nums text-slate-200">
-                        {row.totalPayment.toLocaleString()} {row.currency}
+                        {new Intl.NumberFormat("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.totalPayment)} {row.currency}
                       </td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${

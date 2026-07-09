@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, UploadCloud, LogOut, Building2, Users, Database, Target } from "lucide-react";
+import { LayoutDashboard, UploadCloud, LogOut, Building2, Users, Database, Target, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export function Navigation() {
@@ -37,6 +37,7 @@ export function Navigation() {
   const adminNavItems = [
     { name: "Upload", href: "/upload", icon: UploadCloud },
     { name: "Users", href: "/admin/users", icon: Users },
+    { name: "Target Settings", href: "/admin/targets", icon: Settings },
   ];
 
   const navItems = role === "ADMIN" ? [...baseNavItems, ...adminNavItems] : baseNavItems;

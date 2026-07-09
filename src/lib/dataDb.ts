@@ -2,6 +2,24 @@ import { getGoogleSheet } from './googleSheets';
 
 const RESERVATIONS_SHEET_TITLE = 'Reservations';
 const UPLOAD_LOGS_SHEET_TITLE = 'UploadLogs';
+const TARGETS_SHEET_TITLE = 'Targets';
+
+export type TargetRecord = {
+  propertyName: string;
+  year: number;
+  jan: number;
+  feb: number;
+  mar: number;
+  apr: number;
+  may: number;
+  jun: number;
+  jul: number;
+  aug: number;
+  sep: number;
+  oct: number;
+  nov: number;
+  dec: number;
+};
 
 export type ReservationRecord = {
   id: string;
@@ -135,6 +153,62 @@ export async function saveUploadLog(log: UploadLog) {
     return true;
   } catch (error) {
     console.error("Failed to save UploadLog to Google Sheets", error);
+    return false;
+  }
+}
+
+export async function getTargets(): Promise<TargetRecord[]> {
+  try {
+    const doc = await getGoogleSheet();
+    if (!doc) throw new Error("Failed to connect to Google Sheets");
+
+    const sheet = await getOrCreateSheet(doc, TARGETS_SHEET_TITLE, [
+      'propertyName', 'year', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+    ]);
+
+    const rows = await sheet.getRows();
+    return rows.map((row: any) => ({
+      propertyName: row.get('propertyName') || '',
+      year: parseInt(row.get('year')) || new Date().getFullYear(),
+      jan: parseFloat(row.get('jan')) || 0,
+      feb: parseFloat(row.get('feb')) || 0,
+      mar: parseFloat(row.get('mar')) || 0,
+      apr: parseFloat(row.get('apr')) || 0,
+      may: parseFloat(row.get('may')) || 0,
+      jun: parseFloat(row.get('jun')) || 0,
+      jul: parseFloat(row.get('jul')) || 0,
+      aug: parseFloat(row.get('aug')) || 0,
+      sep: parseFloat(row.get('sep')) || 0,
+      oct: parseFloat(row.get('oct')) || 0,
+      nov: parseFloat(row.get('nov')) || 0,
+      dec: parseFloat(row.get('dec')) || 0,
+    }));
+  } catch (error) {
+    console.error("Failed to read Targets from Google Sheets", error);
+    return [];
+  }
+}
+
+export async function saveTargets(targets: TargetRecord[]) {
+  try {
+    const doc = await getGoogleSheet();
+    if (!doc) throw new Error("Failed to connect to Google Sheets");
+
+    const sheet = await getOrCreateSheet(doc, TARGETS_SHEET_TITLE, [
+      'propertyName', 'year', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+    ]);
+
+    await sheet.clear();
+    await sheet.setHeaderRow([
+      'propertyName', 'year', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+    ]);
+    
+    if (targets.length > 0) {
+      await sheet.addRows(targets);
+    }
+    return true;
+  } catch (error) {
+    console.error("Failed to save Targets to Google Sheets", error);
     return false;
   }
 }

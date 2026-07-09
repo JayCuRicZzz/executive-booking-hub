@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Download, LayoutDashboard, TrendingUp, TrendingDown, CheckCircle, AlertCircle, Hotel, Loader2 } from "lucide-react";
+import { Download, LayoutDashboard, TrendingUp, TrendingDown, CheckCircle, AlertCircle, Hotel, Loader2, Target, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 
@@ -38,6 +38,9 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const router = useRouter();
+
+  const formatMoney = (val: number) => 
+    new Intl.NumberFormat("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 
   useEffect(() => {
     // Auth is handled by Next.js Middleware. Safe to fetch.
@@ -121,24 +124,24 @@ export default function Dashboard() {
 
         {/* Top Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white/[0.02] border border-white/10 backdrop-blur-xl p-6 rounded-3xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-40 transition-opacity">
-              <TrendingUp className="w-24 h-24 text-green-400" />
+          <div className="bg-white/[0.02] border border-white/10 p-6 rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <TrendingUp className="w-24 h-24 text-indigo-400" />
             </div>
-            <p className="text-slate-400 font-medium mb-1">Total Actual Sales</p>
-            <h2 className="text-4xl font-bold text-white mb-2">฿{totalSales.toLocaleString()}</h2>
+            <p className="text-slate-400 text-sm font-medium mb-1">ยอดขายทำได้จริง (Actual Sales)</p>
+            <h2 className="text-4xl font-bold text-white mb-2">฿{formatMoney(totalSales)}</h2>
             <div className="flex items-center gap-2 text-sm text-green-400">
               <TrendingUp className="w-4 h-4" />
               <span>Current day performance</span>
             </div>
           </div>
           
-          <div className="bg-white/[0.02] border border-white/10 backdrop-blur-xl p-6 rounded-3xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-40 transition-opacity">
-              <Hotel className="w-24 h-24 text-blue-400" />
+          <div className="bg-white/[0.02] border border-white/10 p-6 rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Target className="w-24 h-24 text-blue-400" />
             </div>
-            <p className="text-slate-400 font-medium mb-1">Total Daily Target</p>
-            <h2 className="text-4xl font-bold text-white mb-2">฿{totalTarget.toLocaleString()}</h2>
+            <p className="text-slate-400 text-sm font-medium mb-1">เป้าหมายรวมวันนี้ (Daily Target)</p>
+            <h2 className="text-4xl font-bold text-white mb-2">฿{formatMoney(totalTarget)}</h2>
             <div className="flex items-center gap-2 text-sm text-blue-400">
               <CheckCircle className="w-4 h-4" />
               <span>Combined goal for 180 Days tracking</span>
@@ -150,7 +153,7 @@ export default function Dashboard() {
             </div>
             <p className="text-slate-400 font-medium mb-1">Total Shortfall (ยอดที่ขาดทั้งหมด)</p>
             <h2 className={`text-4xl font-bold mb-2 ${totalTarget - totalSales > 0 ? "text-red-400" : "text-green-400"}`}>
-              ฿{Math.max(0, totalTarget - totalSales).toLocaleString()}
+              ฿{formatMoney(Math.max(0, totalTarget - totalSales))}
             </h2>
             <div className={`flex items-center gap-2 text-sm ${totalTarget - totalSales > 0 ? "text-red-400" : "text-green-400"}`}>
               {totalTarget - totalSales > 0 ? <AlertCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
@@ -184,14 +187,11 @@ export default function Dashboard() {
               </thead>
               <tbody className="divide-y divide-white/10">
                 {summaryData.map((row) => (
-                  <tr 
-                    key={row.id} 
-                    className="hover:bg-white/[0.02] transition-colors group"
-                  >
+                  <tr key={row.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-6 py-4 text-slate-400">{row.id}</td>
                     <td className="px-6 py-4 font-medium text-white">{row.hotelName}</td>
-                    <td className="px-6 py-4 text-right tabular-nums">฿{row.actualSales.toLocaleString()}</td>
-                    <td className="px-6 py-4 text-right tabular-nums text-slate-400">฿{row.dailyTarget.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-right tabular-nums">฿{formatMoney(row.actualSales)}</td>
+                    <td className="px-6 py-4 text-right tabular-nums text-slate-400">฿{formatMoney(row.dailyTarget)}</td>
                     <td className="px-6 py-4">
                       <div className="w-full min-w-[120px] bg-white/5 rounded-full h-2.5 mb-1 border border-white/10 overflow-hidden">
                         <div 
@@ -202,10 +202,13 @@ export default function Dashboard() {
                       <span className="text-xs text-slate-400">{Math.round((row.actualSales / row.dailyTarget) * 100)}% of target</span>
                     </td>
                     <td className="px-6 py-4 text-right tabular-nums">
-                      <span className={`inline-flex items-center gap-1 font-medium ${row.gap >= 0 ? "text-green-400" : "text-red-400"}`}>
-                        {row.gap >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                        ฿{Math.abs(row.gap).toLocaleString()}
-                      </span>
+                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${row.gap >= 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
+                          {row.gap >= 0 ? <TrendingUp className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
+                          <span className="font-bold whitespace-nowrap">
+                            {row.gap >= 0 ? 'เกินเป้า ' : 'ขาดอีก '}
+                            ฿{formatMoney(Math.abs(row.gap))}
+                          </span>
+                        </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
@@ -253,14 +256,31 @@ export default function Dashboard() {
                   >
                     <td className="px-6 py-4 font-medium text-white">{row.hotelName}</td>
                     <td className="px-6 py-4 text-center text-slate-300">{row.totalBookings}</td>
-                    <td className="px-6 py-4 text-right tabular-nums text-slate-300">฿{row.actualSales.toLocaleString()}</td>
-                    <td className="px-6 py-4 text-right tabular-nums text-rose-400">-฿{row.totalCommission.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-right tabular-nums text-slate-300">฿{formatMoney(row.actualSales)}</td>
+                    <td className="px-6 py-4 text-right tabular-nums text-rose-400">-฿{formatMoney(row.totalCommission)}</td>
                     <td className="px-6 py-4 text-right tabular-nums font-bold text-emerald-400">
-                      ฿{row.netRevenue.toLocaleString()}
+                      ฿{formatMoney(row.netRevenue)}
                     </td>
                   </tr>
                 ))}
               </tbody>
+              <tfoot className="bg-white/[0.05] border-t border-white/20 font-bold">
+                <tr>
+                  <td className="px-6 py-4 text-white">รวมทั้งหมด (Grand Total)</td>
+                  <td className="px-6 py-4 text-center text-white">
+                    {summaryData.reduce((sum, row) => sum + row.totalBookings, 0).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 text-right tabular-nums text-white">
+                    ฿{formatMoney(summaryData.reduce((sum, row) => sum + row.actualSales, 0))}
+                  </td>
+                  <td className="px-6 py-4 text-right tabular-nums text-rose-400">
+                    -฿{formatMoney(summaryData.reduce((sum, row) => sum + row.totalCommission, 0))}
+                  </td>
+                  <td className="px-6 py-4 text-right tabular-nums text-emerald-400 text-lg">
+                    ฿{formatMoney(summaryData.reduce((sum, row) => sum + row.netRevenue, 0))}
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </section>

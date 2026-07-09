@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
-import { getReservations } from "@/lib/dataDb";
-import { BRANCH_TARGETS, getDaysInMonth } from "@/lib/targetsData";
+import { getReservations, getTargets } from "@/lib/dataDb";
+import { BRANCH_TARGETS as DEFAULT_BRANCH_TARGETS, getDaysInMonth } from "@/lib/targetsData";
 
 export async function GET() {
   try {
-    const reservations = await getReservations();
+    const [reservations, dbTargets] = await Promise.all([
+      getReservations(),
+      getTargets()
+    ]);
     
     // Calculate current time periods
     const now = new Date();
@@ -14,25 +17,49 @@ export async function GET() {
     const year = thailandTime.getUTCFullYear();
     const month = thailandTime.getUTCMonth() + 1; // 1-12
     const date = thailandTime.getUTCDate();
-    const dayOfWeek = thailandTime.getUTCDay() === 0 ? 7 : thailandTime.getUTCDay(); // 1=Mon, 7=Sun
+    const dayOfWeek = thailandTime.getUTCDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     
-    const currentMonthKey = `${year}-${month.toString().padStart(2, '0')}` as keyof typeof BRANCH_TARGETS[0]['targets'];
+    // Map dbTargets to the old format, fallback to default if empty
+    let activeTargets = DEFAULT_BRANCH_TARGETS;
+    
+    const currentYearTargets = dbTargets.filter(t => t.year === year);
+    if (currentYearTargets.length > 0) {
+      activeTargets = currentYearTargets.map(t => ({
+        propertyName: t.propertyName,
+        targets: {
+          [`${year}-01`]: t.jan,
+          [`${year}-02`]: t.feb,
+          [`${year}-03`]: t.mar,
+          [`${year}-04`]: t.apr,
+          [`${year}-05`]: t.may,
+          [`${year}-06`]: t.jun,
+          [`${year}-07`]: t.jul,
+          [`${year}-08`]: t.aug,
+          [`${year}-09`]: t.sep,
+          [`${year}-10`]: t.oct,
+          [`${year}-11`]: t.nov,
+          [`${year}-12`]: t.dec,
+        }
+      })) as any;
+    }
+    
+    const startOfWeekDate = new Date(thailandTime);
+    startOfWeekDate.setUTCDate(date + diffToMonday);
+    startOfWeekDate.setUTCHours(0, 0, 0, 0);
+    
+    const currentMonthKey = `${year}-${month.toString().padStart(2, '0')}` as any;
     const daysInMonth = getDaysInMonth(year, month);
     
-    // Date strings for matching
-    const todayStr = `${year}-${month.toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
-    const startOfWeekDate = new Date(thailandTime);
-    startOfWeekDate.setUTCDate(date - dayOfWeek + 1);
-    
     // We'll compute the rankings
-    const rankings = BRANCH_TARGETS.map(branchConfig => {
+    const rankings = activeTargets.map(branchConfig => {
       // Get the monthly target
-      const monthTarget = branchConfig.targets[currentMonthKey] || 0;
+      const monthTarget = (branchConfig.targets as any)[currentMonthKey] || 0;
       const dailyTarget = monthTarget / daysInMonth;
       const weeklyTarget = dailyTarget * 7;
       
       // Calculate Yearly Target
-      const yearlyTarget = Object.values(branchConfig.targets).reduce((sum, val) => sum + val, 0);
+      const yearlyTarget = Object.values(branchConfig.targets).reduce((sum: any, val: any) => sum + val, 0);
       
       // Filter reservations for this branch
       const branchReservations = reservations.filter(r => 
