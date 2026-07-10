@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getReservations, getTargets } from "@/lib/dataDb";
+import { getReservations, getTargets, getUploadLogs } from "@/lib/dataDb";
 import { BRANCH_TARGETS as DEFAULT_BRANCH_TARGETS, getDaysInMonth } from "@/lib/targetsData";
 
 export async function GET(request: Request) {
@@ -7,10 +7,13 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get("date");
 
-    const [reservations, dbTargets] = await Promise.all([
+    const [reservations, dbTargets, uploadLogs] = await Promise.all([
       getReservations(),
-      getTargets()
+      getTargets(),
+      getUploadLogs()
     ]);
+    
+    const lastUpdated = uploadLogs.length > 0 ? uploadLogs[0].uploadDate : null;
     
     // Calculate current time periods
     const now = dateParam ? new Date(dateParam) : new Date();
@@ -131,6 +134,7 @@ export async function GET(request: Request) {
     
     return NextResponse.json({
       currentMonth: currentMonthKey,
+      lastUpdated,
       rankings
     });
     

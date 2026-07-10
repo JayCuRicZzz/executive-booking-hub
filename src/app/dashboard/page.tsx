@@ -13,6 +13,8 @@ type SummaryData = {
   totalCommission: number;
   netRevenue: number;
   dailyTarget: number;
+  monthlyTarget: number;
+  yearlyTarget: number;
   gap: number;
   status: string;
 };
@@ -190,32 +192,39 @@ export default function Dashboard() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-white/[0.02] text-slate-400 text-sm border-b border-white/10">
-                  <th className="px-6 py-4 font-medium whitespace-nowrap">ลำดับ (No.)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap">ชื่อสาขา (Hotel Name)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right">ยอดขายจริง (THB)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right">เป้าต่อวัน (THB)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap">ความคืบหน้า (Progress)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right">ส่วนต่าง (Gap)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap">สถานะ (Action Required)</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">ลำดับ</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">ชื่อสาขา (Hotel Name)</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right">ยอดขายจริง (THB)</th>
+                  <th className="hidden md:table-cell px-6 py-4 font-medium whitespace-nowrap text-right">เป้าเดือน (THB)</th>
+                  <th className="hidden lg:table-cell px-6 py-4 font-medium whitespace-nowrap text-right">เป้าปี (THB)</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">ความคืบหน้า (Progress)</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right">ส่วนต่าง (Gap)</th>
+                  <th className="hidden md:table-cell px-6 py-4 font-medium whitespace-nowrap">สถานะ (Action Required)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody className="divide-y divide-white/10 text-sm md:text-base">
                 {summaryData.map((row) => (
                   <tr key={row.id} className="hover:bg-white/[0.02] transition-colors group">
-                    <td className="px-6 py-4 text-slate-400">{row.id}</td>
-                    <td className="px-6 py-4 font-medium text-white">{row.hotelName}</td>
-                    <td className="px-6 py-4 text-right tabular-nums">฿{formatMoney(row.actualSales)}</td>
-                    <td className="px-6 py-4 text-right tabular-nums text-slate-400">฿{formatMoney(row.dailyTarget)}</td>
-                    <td className="px-6 py-4">
-                      <div className="w-full min-w-[120px] bg-white/5 rounded-full h-2.5 mb-1 border border-white/10 overflow-hidden">
+                    <td className="px-4 md:px-6 py-4 text-slate-400">{row.id}</td>
+                    <td className="px-4 md:px-6 py-4 font-medium text-white">{row.hotelName}</td>
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-indigo-300">
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold">฿{formatMoney(row.actualSales)}</span>
+                        <span className="text-xs text-slate-400 md:hidden">เป้าด.: ฿{formatMoney(row.monthlyTarget)}</span>
+                      </div>
+                    </td>
+                    <td className="hidden md:table-cell px-6 py-4 text-right tabular-nums text-slate-400">฿{formatMoney(row.monthlyTarget)}</td>
+                    <td className="hidden lg:table-cell px-6 py-4 text-right tabular-nums text-slate-400">฿{formatMoney(row.yearlyTarget)}</td>
+                    <td className="px-4 md:px-6 py-4">
+                      <div className="w-full min-w-[80px] md:min-w-[120px] bg-white/5 rounded-full h-2.5 mb-1 border border-white/10 overflow-hidden">
                         <div 
-                          className={`h-2.5 rounded-full ${row.actualSales >= row.dailyTarget ? 'bg-green-500' : 'bg-red-500'}`} 
-                          style={{ width: `${Math.min(100, (row.actualSales / row.dailyTarget) * 100)}%` }}
+                          className={`h-2.5 rounded-full ${row.actualSales >= row.monthlyTarget ? 'bg-green-500' : 'bg-red-500'}`} 
+                          style={{ width: `${Math.min(100, (row.actualSales / (row.monthlyTarget || 1)) * 100)}%` }}
                         ></div>
                       </div>
-                      <span className="text-xs text-slate-400">{Math.round((row.actualSales / row.dailyTarget) * 100)}% of target</span>
+                      <span className="text-xs text-slate-400">{Math.round((row.actualSales / (row.monthlyTarget || 1)) * 100)}% (เดือน)</span>
                     </td>
-                    <td className="px-6 py-4 text-right tabular-nums">
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums">
                         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${row.gap >= 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
                           {row.gap >= 0 ? <TrendingUp className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
                           <span className="font-bold whitespace-nowrap">
@@ -224,14 +233,14 @@ export default function Dashboard() {
                           </span>
                         </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="hidden md:table-cell px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
                         row.status.includes("High Priority") 
                           ? "bg-red-500/10 text-red-400 border-red-500/20" 
                           : "bg-green-500/10 text-green-400 border-green-500/20"
                       }`}>
                         {row.status.includes("High Priority") ? <AlertCircle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
-                        {row.status}
+                        <span className="max-w-[120px] truncate" title={row.status}>{row.status}</span>
                       </span>
                     </td>
                   </tr>
@@ -255,43 +264,33 @@ export default function Dashboard() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-white/[0.02] text-slate-400 text-sm border-b border-white/10">
-                  <th className="px-6 py-4 font-medium whitespace-nowrap">สาขา (Hotel Name)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap text-center">จำนวน (Bookings)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right">ยอดขายรวม (Gross)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right">หักคอมมิชชั่น (Commission)</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap text-right text-emerald-400">รายได้สุทธิ (Net Revenue)</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">ชื่อสาขา (Hotel Name)</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right">ยอดขายรวม (Gross)</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right text-rose-300">หักคอมมิชชั่น</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right text-emerald-300">รายได้สุทธิ (Net)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody className="divide-y divide-white/10 text-sm md:text-base">
                 {summaryData.map((row) => (
-                  <tr 
-                    key={row.id + '-net'} 
-                    className="hover:bg-white/[0.02] transition-colors group"
-                  >
-                    <td className="px-6 py-4 font-medium text-white">{row.hotelName}</td>
-                    <td className="px-6 py-4 text-center text-slate-300">{row.totalBookings}</td>
-                    <td className="px-6 py-4 text-right tabular-nums text-slate-300">฿{formatMoney(row.actualSales)}</td>
-                    <td className="px-6 py-4 text-right tabular-nums text-rose-400">-฿{formatMoney(row.totalCommission)}</td>
-                    <td className="px-6 py-4 text-right tabular-nums font-bold text-emerald-400">
-                      ฿{formatMoney(row.netRevenue)}
-                    </td>
+                  <tr key={row.id} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="px-4 md:px-6 py-4 font-medium text-white">{row.hotelName}</td>
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-slate-300">฿{formatMoney(row.actualSales)}</td>
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-rose-400">-฿{formatMoney(row.totalCommission)}</td>
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-emerald-400">฿{formatMoney(row.netRevenue)}</td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot className="bg-white/[0.05] border-t border-white/20 font-bold">
+              <tfoot className="bg-white/[0.05] border-t-2 border-white/20">
                 <tr>
-                  <td className="px-6 py-4 text-white">รวมทั้งหมด (Grand Total)</td>
-                  <td className="px-6 py-4 text-center text-white">
-                    {summaryData.reduce((sum, row) => sum + row.totalBookings, 0).toLocaleString()}
+                  <td className="px-4 md:px-6 py-4 font-bold text-white text-right">ยอดรวมทุกสาขา</td>
+                  <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-slate-200">
+                    ฿{formatMoney(summaryData.reduce((acc, curr) => acc + curr.actualSales, 0))}
                   </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-white">
-                    ฿{formatMoney(summaryData.reduce((sum, row) => sum + row.actualSales, 0))}
+                  <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-rose-400">
+                    -฿{formatMoney(summaryData.reduce((acc, curr) => acc + curr.totalCommission, 0))}
                   </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-rose-400">
-                    -฿{formatMoney(summaryData.reduce((sum, row) => sum + row.totalCommission, 0))}
-                  </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-emerald-400 text-lg">
-                    ฿{formatMoney(summaryData.reduce((sum, row) => sum + row.netRevenue, 0))}
+                  <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-emerald-400 text-lg">
+                    ฿{formatMoney(summaryData.reduce((acc, curr) => acc + curr.netRevenue, 0))}
                   </td>
                 </tr>
               </tfoot>

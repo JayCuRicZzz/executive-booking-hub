@@ -50,6 +50,7 @@ export async function GET() {
     const summary = activeTargets.map((branch, index) => {
       const monthTarget = (branch.targets as any)[currentMonthKey] || 0;
       const dailyTarget = monthTarget / daysInMonth;
+      const yearlyTarget = Object.values(branch.targets).reduce((sum: any, val: any) => sum + val, 0) as number;
 
       // Find all reservations for this branch
       const branchReservations = reservations.filter(r => 
@@ -78,6 +79,8 @@ export async function GET() {
         totalCommission,
         netRevenue,
         dailyTarget,
+        monthlyTarget: monthTarget,
+        yearlyTarget,
         gap,
         status
       };

@@ -17,6 +17,7 @@ export default function TargetsPage() {
   const [rankings, setRankings] = useState<RankingData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   // Default to today's date in YYYY-MM-DD
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -28,6 +29,9 @@ export default function TargetsPage() {
       .then(res => res.json())
       .then(data => {
         setRankings(data.rankings || []);
+        if (data.lastUpdated) {
+          setLastUpdated(data.lastUpdated);
+        }
         setIsLoading(false);
       })
       .catch(err => {
@@ -72,6 +76,11 @@ export default function TargetsPage() {
             <p className="text-slate-400 text-sm ml-1">
               จัดอันดับสาขาตามเป้าหมาย (เป้าหมายหลัก: 100 ล้านบาท)
             </p>
+            {lastUpdated && (
+              <p className="text-slate-500 text-xs ml-1 mt-1">
+                อัปเดตข้อมูลล่าสุด: {lastUpdated}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">

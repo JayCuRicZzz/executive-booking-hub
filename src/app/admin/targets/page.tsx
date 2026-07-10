@@ -158,9 +158,19 @@ export default function AdminTargetsPage() {
                           <td key={month} className="px-4 py-3">
                             <input 
                               type="number" 
+                              step="0.01"
+                              min="0"
                               value={row[month as keyof TargetRecord] === 0 ? '' : row[month as keyof TargetRecord] as number}
                               onChange={(e) => handleTargetChange(index, month as keyof TargetRecord, e.target.value)}
-                              placeholder="0"
+                              onBlur={(e) => {
+                                // Add 2 decimal places on blur if it's a valid number
+                                const val = parseFloat(e.target.value);
+                                if (!isNaN(val)) {
+                                  e.target.value = val.toFixed(2);
+                                  handleTargetChange(index, month as keyof TargetRecord, e.target.value);
+                                }
+                              }}
+                              placeholder="0.00"
                               className="w-24 text-right bg-white/5 border border-white/10 rounded px-2 py-1.5 text-sm text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                             />
                           </td>
