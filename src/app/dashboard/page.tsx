@@ -220,6 +220,8 @@ export default function Dashboard() {
                 {summaryData.map((row) => {
                   const targetValue = progressMode === 'month' ? row.monthlyTarget : row.yearlyTarget;
                   const progressPercent = Math.min(100, (row.actualSales / (targetValue || 1)) * 100);
+                  const dynamicGap = row.actualSales - targetValue;
+                  const dynamicStatus = dynamicGap >= 0 ? "🟢 On Track - ทำได้ตามเป้า" : "🔴 High Priority - ต้องเร่งอัดแคมเปญด่วน";
                   
                   return (
                   <tr key={row.id} className="hover:bg-white/[0.02] transition-colors group">
@@ -244,22 +246,22 @@ export default function Dashboard() {
                       <span className="text-xs text-slate-400">{Math.round((row.actualSales / (targetValue || 1)) * 100)}% ({progressMode === 'month' ? 'เดือน' : 'ปี'})</span>
                     </td>
                     <td className="px-4 md:px-6 py-4 text-right tabular-nums">
-                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${row.gap >= 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
-                          {row.gap >= 0 ? <TrendingUp className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
+                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${dynamicGap >= 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
+                          {dynamicGap >= 0 ? <TrendingUp className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
                           <span className="font-bold whitespace-nowrap">
-                            {row.gap >= 0 ? 'เกินเป้า ' : 'ขาดอีก '}
-                            ฿{formatMoney(Math.abs(row.gap))}
+                            {dynamicGap >= 0 ? 'เกินเป้า ' : 'ขาดอีก '}
+                            ฿{formatMoney(Math.abs(dynamicGap))}
                           </span>
                         </div>
                     </td>
                     <td className="hidden md:table-cell px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
-                        row.status.includes("High Priority") 
+                        dynamicStatus.includes("High Priority") 
                           ? "bg-red-500/10 text-red-400 border-red-500/20" 
                           : "bg-green-500/10 text-green-400 border-green-500/20"
                       }`}>
-                        {row.status.includes("High Priority") ? <AlertCircle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
-                        <span className="max-w-[120px] truncate" title={row.status}>{row.status}</span>
+                        {dynamicStatus.includes("High Priority") ? <AlertCircle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                        <span className="max-w-[120px] truncate" title={dynamicStatus}>{dynamicStatus}</span>
                       </span>
                     </td>
                   </tr>
