@@ -225,15 +225,15 @@ export default function Dashboard() {
                   <tr key={row.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-4 md:px-6 py-4 text-slate-400">{row.id}</td>
                     <td className="px-4 md:px-6 py-4 font-medium text-white">{row.hotelName}</td>
-                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-indigo-300">
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-indigo-300 whitespace-nowrap">
                       <div className="flex flex-col items-end">
                         <span className="font-bold">฿{formatMoney(row.actualSales)}</span>
                         <span className="text-xs text-slate-400 md:hidden">เป้า: ฿{formatMoney(targetValue)}</span>
                       </div>
                     </td>
-                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-rose-400">-฿{formatMoney(row.totalCommission)}</td>
-                    <td className="hidden md:table-cell px-6 py-4 text-right tabular-nums text-slate-400">฿{formatMoney(row.monthlyTarget)}</td>
-                    <td className="hidden lg:table-cell px-6 py-4 text-right tabular-nums text-slate-400">฿{formatMoney(row.yearlyTarget)}</td>
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-rose-400 whitespace-nowrap">-฿{formatMoney(row.totalCommission)}</td>
+                    <td className="hidden md:table-cell px-6 py-4 text-right tabular-nums text-slate-400 whitespace-nowrap">฿{formatMoney(row.monthlyTarget)}</td>
+                    <td className="hidden lg:table-cell px-6 py-4 text-right tabular-nums text-slate-400 whitespace-nowrap">฿{formatMoney(row.yearlyTarget)}</td>
                     <td className="px-4 md:px-6 py-4">
                       <div className="w-full min-w-[80px] md:min-w-[120px] bg-white/5 rounded-full h-2.5 mb-1 border border-white/10 overflow-hidden">
                         <div 
@@ -293,22 +293,22 @@ export default function Dashboard() {
                 {summaryData.map((row) => (
                   <tr key={row.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-4 md:px-6 py-4 font-medium text-white">{row.hotelName}</td>
-                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-slate-300">฿{formatMoney(row.actualSales)}</td>
-                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-rose-400">-฿{formatMoney(row.totalCommission)}</td>
-                    <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-emerald-400">฿{formatMoney(row.netRevenue)}</td>
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-slate-300 whitespace-nowrap">฿{formatMoney(row.actualSales)}</td>
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-rose-400 whitespace-nowrap">-฿{formatMoney(row.totalCommission)}</td>
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-emerald-400 whitespace-nowrap">฿{formatMoney(row.netRevenue)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot className="bg-white/[0.05] border-t-2 border-white/20">
                 <tr>
                   <td className="px-4 md:px-6 py-4 font-bold text-white text-right">ยอดรวมทุกสาขา</td>
-                  <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-slate-200">
+                  <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-slate-200 whitespace-nowrap">
                     ฿{formatMoney(summaryData.reduce((acc, curr) => acc + curr.actualSales, 0))}
                   </td>
-                  <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-rose-400">
+                  <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-rose-400 whitespace-nowrap">
                     -฿{formatMoney(summaryData.reduce((acc, curr) => acc + curr.totalCommission, 0))}
                   </td>
-                  <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-emerald-400 text-lg">
+                  <td className="px-4 md:px-6 py-4 text-right tabular-nums font-bold text-emerald-400 text-lg whitespace-nowrap">
                     ฿{formatMoney(summaryData.reduce((acc, curr) => acc + curr.netRevenue, 0))}
                   </td>
                 </tr>
