@@ -39,7 +39,6 @@ export default function Dashboard() {
   const [reservationsData, setReservationsData] = useState<ReservationData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
-  const [progressMode, setProgressMode] = useState<"month" | "year">("month");
   const router = useRouter();
 
   const formatMoney = (val: number) => 
@@ -197,28 +196,15 @@ export default function Dashboard() {
                   <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">ชื่อสาขา (Hotel Name)</th>
                   <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right">ยอดขายจริง (THB)</th>
                   <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right text-rose-300">หักคอมมิชชั่น</th>
-                  <th className="hidden md:table-cell px-6 py-4 font-medium whitespace-nowrap text-right">เป้าเดือน (THB)</th>
                   <th className="hidden lg:table-cell px-6 py-4 font-medium whitespace-nowrap text-right">เป้าปี (THB)</th>
-                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      ความคืบหน้า (Progress)
-                      <select 
-                        value={progressMode} 
-                        onChange={e => setProgressMode(e.target.value as "month" | "year")}
-                        className="bg-white/10 text-white text-xs border border-white/20 rounded px-2 py-1 outline-none focus:border-indigo-500"
-                      >
-                        <option value="month" className="text-black">เดือน</option>
-                        <option value="year" className="text-black">ปี</option>
-                      </select>
-                    </div>
-                  </th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">ความคืบหน้า (Progress)</th>
                   <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right">ส่วนต่าง (Gap)</th>
                   <th className="hidden md:table-cell px-6 py-4 font-medium whitespace-nowrap">สถานะ (Action Required)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10 text-sm md:text-base">
                 {summaryData.map((row) => {
-                  const targetValue = progressMode === 'month' ? row.monthlyTarget : row.yearlyTarget;
+                  const targetValue = row.yearlyTarget;
                   const progressPercent = Math.min(100, (row.actualSales / (targetValue || 1)) * 100);
                   const dynamicGap = row.actualSales - targetValue;
                   const dynamicStatus = dynamicGap >= 0 ? "🟢 On Track - ทำได้ตามเป้า" : "🔴 High Priority - ต้องเร่งอัดแคมเปญด่วน";
@@ -234,7 +220,6 @@ export default function Dashboard() {
                       </div>
                     </td>
                     <td className="px-4 md:px-6 py-4 text-right tabular-nums text-rose-400 whitespace-nowrap">-฿{formatMoney(row.totalCommission)}</td>
-                    <td className="hidden md:table-cell px-6 py-4 text-right tabular-nums text-slate-400 whitespace-nowrap">฿{formatMoney(row.monthlyTarget)}</td>
                     <td className="hidden lg:table-cell px-6 py-4 text-right tabular-nums text-slate-400 whitespace-nowrap">฿{formatMoney(row.yearlyTarget)}</td>
                     <td className="px-4 md:px-6 py-4">
                       <div className="w-full min-w-[80px] md:min-w-[120px] bg-white/5 rounded-full h-2.5 mb-1 border border-white/10 overflow-hidden">
@@ -243,7 +228,7 @@ export default function Dashboard() {
                           style={{ width: `${progressPercent}%` }}
                         ></div>
                       </div>
-                      <span className="text-xs text-slate-400">{Math.round((row.actualSales / (targetValue || 1)) * 100)}% ({progressMode === 'month' ? 'เดือน' : 'ปี'})</span>
+                      <span className="text-xs text-slate-400">{Math.round((row.actualSales / (targetValue || 1)) * 100)}% (ปี)</span>
                     </td>
                     <td className="px-4 md:px-6 py-4 text-right tabular-nums">
                         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${dynamicGap >= 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
