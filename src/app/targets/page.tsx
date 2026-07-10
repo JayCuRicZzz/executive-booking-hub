@@ -59,12 +59,12 @@ export default function TargetsPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-indigo-500/30 pb-20">
       {/* Background Decor */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[10%] left-[40%] w-[60%] h-[60%] bg-rose-600/10 blur-[120px] rounded-full mix-blend-screen" />
-        <div className="absolute top-[30%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full mix-blend-screen" />
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[10%] left-[40%] w-[60%] h-[60%] bg-rose-600/10 blur-[80px] md:blur-[120px] rounded-full mix-blend-screen" />
+        <div className="absolute top-[30%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[80px] md:blur-[120px] rounded-full mix-blend-screen" />
       </div>
 
-      <main className="relative z-10 max-w-5xl mx-auto px-6 py-12">
+      <main className="relative z-10 max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-12">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -118,10 +118,10 @@ export default function TargetsPage() {
             return (
               <div 
                 key={branch.propertyName}
-                className={`relative overflow-hidden rounded-2xl border p-5 md:p-6 transition-all duration-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
+                className={`relative overflow-hidden rounded-2xl border p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6 ${
                   isMissing 
-                    ? "bg-red-500/5 border-red-500/30 hover:border-red-500/50 hover:bg-red-500/10" 
-                    : "bg-white/[0.02] border-white/10 hover:border-indigo-500/50 hover:bg-white/[0.04]"
+                    ? "bg-red-500/5 border-red-500/30 md:hover:border-red-500/50 md:hover:bg-red-500/10" 
+                    : "bg-slate-900/50 md:bg-white/[0.02] border-white/10 md:hover:border-indigo-500/50 md:hover:bg-white/[0.04]"
                 }`}
               >
                 {/* Ranking Number */}

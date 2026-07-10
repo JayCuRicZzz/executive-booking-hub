@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [reservationsData, setReservationsData] = useState<ReservationData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
+  const [progressMode, setProgressMode] = useState<"month" | "year">("month");
   const router = useRouter();
 
   const formatMoney = (val: number) => 
@@ -107,12 +108,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-indigo-500/30">
       {/* Background Decor */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[120px] rounded-full mix-blend-screen" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-600/20 blur-[120px] rounded-full mix-blend-screen" />
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[100px] rounded-full mix-blend-screen md:blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-600/10 blur-[100px] rounded-full mix-blend-screen md:blur-[120px]" />
       </div>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-12">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -126,9 +127,9 @@ export default function Dashboard() {
 
         </header>
 
-        {/* Top Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          <div className="bg-white/[0.02] border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
+        {/* Dashboard Overview Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
+          <div className="bg-slate-900/60 md:bg-white/[0.02] border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <TrendingUp className="w-20 h-20 text-indigo-400" />
             </div>
@@ -152,7 +153,7 @@ export default function Dashboard() {
             </div>
           </div>
           
-          <div className="bg-white/[0.02] border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
+          <div className="bg-slate-900/60 md:bg-white/[0.02] border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <Target className="w-20 h-20 text-blue-400" />
             </div>
@@ -163,7 +164,7 @@ export default function Dashboard() {
               <span>Combined goal for tracking</span>
             </div>
           </div>
-          <div className="bg-white/[0.02] border border-white/10 backdrop-blur-xl p-5 rounded-3xl relative overflow-hidden group">
+          <div className="bg-slate-900/60 md:bg-white/[0.02] border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <CheckCircle className="w-20 h-20 text-emerald-400" />
             </div>
@@ -179,50 +180,68 @@ export default function Dashboard() {
         </div>
 
         {/* Data Table */}
-        <section className="bg-white/[0.02] border border-white/10 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl">
-          <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.01]">
+        <section className="bg-slate-900/60 md:bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="p-4 md:p-6 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/[0.01]">
             <h3 className="text-xl font-semibold text-white flex items-center gap-2">
               Branch Performance Summary
             </h3>
             <span className="text-xs font-medium px-3 py-1 bg-white/5 rounded-full text-slate-300 border border-white/10">
-              Date: 5/7/26
+              อัปเดต: {new Date().toLocaleDateString('th-TH', { dateStyle: 'medium' })}
             </span>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto relative">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-white/[0.02] text-slate-400 text-sm border-b border-white/10">
                   <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">ลำดับ</th>
                   <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">ชื่อสาขา (Hotel Name)</th>
                   <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right">ยอดขายจริง (THB)</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right text-rose-300">หักคอมมิชชั่น</th>
                   <th className="hidden md:table-cell px-6 py-4 font-medium whitespace-nowrap text-right">เป้าเดือน (THB)</th>
                   <th className="hidden lg:table-cell px-6 py-4 font-medium whitespace-nowrap text-right">เป้าปี (THB)</th>
-                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">ความคืบหน้า (Progress)</th>
+                  <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      ความคืบหน้า (Progress)
+                      <select 
+                        value={progressMode} 
+                        onChange={e => setProgressMode(e.target.value as "month" | "year")}
+                        className="bg-white/10 text-white text-xs border border-white/20 rounded px-2 py-1 outline-none focus:border-indigo-500"
+                      >
+                        <option value="month" className="text-black">เดือน</option>
+                        <option value="year" className="text-black">ปี</option>
+                      </select>
+                    </div>
+                  </th>
                   <th className="px-4 md:px-6 py-4 font-medium whitespace-nowrap text-right">ส่วนต่าง (Gap)</th>
                   <th className="hidden md:table-cell px-6 py-4 font-medium whitespace-nowrap">สถานะ (Action Required)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10 text-sm md:text-base">
-                {summaryData.map((row) => (
+                {summaryData.map((row) => {
+                  const targetValue = progressMode === 'month' ? row.monthlyTarget : row.yearlyTarget;
+                  const progressPercent = Math.min(100, (row.actualSales / (targetValue || 1)) * 100);
+                  
+                  return (
                   <tr key={row.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-4 md:px-6 py-4 text-slate-400">{row.id}</td>
                     <td className="px-4 md:px-6 py-4 font-medium text-white">{row.hotelName}</td>
                     <td className="px-4 md:px-6 py-4 text-right tabular-nums text-indigo-300">
                       <div className="flex flex-col items-end">
                         <span className="font-bold">฿{formatMoney(row.actualSales)}</span>
-                        <span className="text-xs text-slate-400 md:hidden">เป้าด.: ฿{formatMoney(row.monthlyTarget)}</span>
+                        <span className="text-xs text-slate-400 md:hidden">เป้า: ฿{formatMoney(targetValue)}</span>
                       </div>
                     </td>
+                    <td className="px-4 md:px-6 py-4 text-right tabular-nums text-rose-400">-฿{formatMoney(row.totalCommission)}</td>
                     <td className="hidden md:table-cell px-6 py-4 text-right tabular-nums text-slate-400">฿{formatMoney(row.monthlyTarget)}</td>
                     <td className="hidden lg:table-cell px-6 py-4 text-right tabular-nums text-slate-400">฿{formatMoney(row.yearlyTarget)}</td>
                     <td className="px-4 md:px-6 py-4">
                       <div className="w-full min-w-[80px] md:min-w-[120px] bg-white/5 rounded-full h-2.5 mb-1 border border-white/10 overflow-hidden">
                         <div 
-                          className={`h-2.5 rounded-full ${row.actualSales >= row.monthlyTarget ? 'bg-green-500' : 'bg-red-500'}`} 
-                          style={{ width: `${Math.min(100, (row.actualSales / (row.monthlyTarget || 1)) * 100)}%` }}
+                          className={`h-2.5 rounded-full ${row.actualSales >= targetValue ? 'bg-green-500' : 'bg-indigo-500'}`} 
+                          style={{ width: `${progressPercent}%` }}
                         ></div>
                       </div>
-                      <span className="text-xs text-slate-400">{Math.round((row.actualSales / (row.monthlyTarget || 1)) * 100)}% (เดือน)</span>
+                      <span className="text-xs text-slate-400">{Math.round((row.actualSales / (targetValue || 1)) * 100)}% ({progressMode === 'month' ? 'เดือน' : 'ปี'})</span>
                     </td>
                     <td className="px-4 md:px-6 py-4 text-right tabular-nums">
                         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${row.gap >= 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
@@ -244,7 +263,7 @@ export default function Dashboard() {
                       </span>
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>
