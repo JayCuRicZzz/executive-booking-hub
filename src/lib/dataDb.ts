@@ -59,7 +59,25 @@ async function getOrCreateSheet(doc: any, title: string, headers: string[]) {
   return sheet;
 }
 
+// In-memory cache variables
+let reservationsCache: ReservationRecord[] | null = null;
+let reservationsCacheTime = 0;
+let targetsCache: TargetRecord[] | null = null;
+let targetsCacheTime = 0;
+let logsCache: UploadLog[] | null = null;
+let logsCacheTime = 0;
+const CACHE_TTL = 60 * 1000; // 1 minute
+
+export function clearDataCache() {
+  reservationsCache = null;
+  targetsCache = null;
+  logsCache = null;
+}
+
 export async function getReservations(): Promise<ReservationRecord[]> {
+  if (reservationsCache && Date.now() - reservationsCacheTime < CACHE_TTL) {
+    return reservationsCache;
+  }
   try {
     const doc = await getGoogleSheet();
     if (!doc) throw new Error("Failed to connect to Google Sheets");
@@ -72,7 +90,7 @@ export async function getReservations(): Promise<ReservationRecord[]> {
     ]);
 
     const rows = await sheet.getRows();
-    return rows.map((row: any) => ({
+    const result = rows.map((row: any) => ({
       id: row.get('id') || '',
       propertyName: row.get('propertyName') || '',
       location: row.get('location') || '',
@@ -90,6 +108,10 @@ export async function getReservations(): Promise<ReservationRecord[]> {
       uploadedBy: row.get('uploadedBy') || '',
       tag: row.get('tag') || ''
     }));
+    
+    reservationsCache = result;
+    reservationsCacheTime = Date.now();
+    return result;
   } catch (error) {
     console.error("Failed to read Reservations from Google Sheets", error);
     return [];
@@ -109,6 +131,7 @@ export async function saveReservations(records: Partial<ReservationRecord>[]) {
     ]);
 
     await sheet.addRows(records);
+    clearDataCache();
     return true;
   } catch (error) {
     console.error("Failed to save Reservations to Google Sheets", error);
@@ -117,6 +140,9 @@ export async function saveReservations(records: Partial<ReservationRecord>[]) {
 }
 
 export async function getUploadLogs(): Promise<UploadLog[]> {
+  if (logsCache && Date.now() - logsCacheTime < CACHE_TTL) {
+    return logsCache;
+  }
   try {
     const doc = await getGoogleSheet();
     if (!doc) throw new Error("Failed to connect to Google Sheets");
@@ -126,14 +152,18 @@ export async function getUploadLogs(): Promise<UploadLog[]> {
     ]);
 
     const rows = await sheet.getRows();
-    return rows.map((row: any) => ({
+    const result = rows.map((row: any) => ({
       id: row.get('id') || '',
       fileName: row.get('fileName') || '',
       uploadDate: row.get('uploadDate') || '',
       uploadedBy: row.get('uploadedBy') || '',
       newRecords: parseInt(row.get('newRecords')) || 0,
-      duplicates: parseInt(row.get('duplicates')) || 0
-    })).reverse(); // Return newest first
+      duplicates: parseInt(row.get('duplicates')) || 0,
+    })).reverse();
+    
+    logsCache = result;
+    logsCacheTime = Date.now();
+    return result;
   } catch (error) {
     console.error("Failed to read UploadLogs from Google Sheets", error);
     return [];
@@ -150,6 +180,7 @@ export async function saveUploadLog(log: UploadLog) {
     ]);
 
     await sheet.addRow(log);
+    clearDataCache();
     return true;
   } catch (error) {
     console.error("Failed to save UploadLog to Google Sheets", error);
@@ -158,6 +189,9 @@ export async function saveUploadLog(log: UploadLog) {
 }
 
 export async function getTargets(): Promise<TargetRecord[]> {
+  if (targetsCache && Date.now() - targetsCacheTime < CACHE_TTL) {
+    return targetsCache;
+  }
   try {
     const doc = await getGoogleSheet();
     if (!doc) throw new Error("Failed to connect to Google Sheets");
@@ -167,7 +201,7 @@ export async function getTargets(): Promise<TargetRecord[]> {
     ]);
 
     const rows = await sheet.getRows();
-    return rows.map((row: any) => ({
+    const result = rows.map((row: any) => ({
       propertyName: row.get('propertyName') || '',
       year: parseInt(row.get('year')) || new Date().getFullYear(),
       jan: parseFloat(row.get('jan')) || 0,
@@ -183,6 +217,10 @@ export async function getTargets(): Promise<TargetRecord[]> {
       nov: parseFloat(row.get('nov')) || 0,
       dec: parseFloat(row.get('dec')) || 0,
     }));
+    
+    targetsCache = result;
+    targetsCacheTime = Date.now();
+    return result;
   } catch (error) {
     console.error("Failed to read Targets from Google Sheets", error);
     return [];
@@ -206,6 +244,7 @@ export async function saveTargets(targets: TargetRecord[]) {
     if (targets.length > 0) {
       await sheet.addRows(targets);
     }
+    clearDataCache();
     return true;
   } catch (error) {
     console.error("Failed to save Targets to Google Sheets", error);
