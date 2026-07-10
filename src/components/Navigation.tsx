@@ -48,7 +48,7 @@ export function Navigation() {
         <div className="flex items-center justify-between w-full md:w-auto">
           <Link href="/dashboard" className="flex items-center gap-2 text-white font-bold text-lg tracking-tight">
             <Building2 className="w-5 h-5 text-indigo-500" />
-            <span>Executive<span className="text-indigo-400">Hub</span></span>
+            <span>Booking.com <span className="text-indigo-400">100 ล้าน</span></span>
           </Link>
           
           <button 
