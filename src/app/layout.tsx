@@ -16,6 +16,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BellaVillas BKC 100 ล้าน App",
   description: "BellaVillas BKC 100 ล้าน App Dashboard",
+  openGraph: {
+    title: "BellaVillas BKC 100 ล้าน App",
+    description: "BellaVillas BKC 100 ล้าน App Dashboard",
+    type: "website",
+  },
+  twitter: {
+    title: "BellaVillas BKC 100 ล้าน App",
+    description: "BellaVillas BKC 100 ล้าน App Dashboard",
+  },
 };
 
 export default function RootLayout({
